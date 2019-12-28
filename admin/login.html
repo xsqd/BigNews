@@ -37,6 +37,58 @@
       </form>
     </div>
   </div>
+  <script>
+    //入口函数
+    $(function () {
+      //给 login_form 表单注册提交事件
+      $('.login_form').submit(function (e) {
+        //阻止默认行为，因为我们需要验证用户输入内容是否正确
+        e.preventDefault();
+        // 找对象，获取输入框内，用户输入的内容，并修剪首尾空格
+        const input_txt = $('.input_txt').val().trim();
+        const input_pass = $('.input_pass').val().trim();
+        // 判断输入内容是否为空
+        if (input_txt === '' || input_pass === '') {
+          alert('输入的用户名或密码不能为空');
+          return;
+        }
+        // Ajax请求
+        $.ajax({
+          // 请求方法
+          type: 'post',
+          // 请求路径
+          url: 'http://localhost:8080/api/v1/admin/user/login',
+          // 请求参数
+          data: {
+            username: input_txt,
+            password: input_pass
+          },
+          // 参数类型
+          dataType: 'json',
+          // 请求成功后的回调函数
+          success: function (res) {
+            // 获取返回参数数据
+            const code = res.code;
+            const msg = res.msg;
+            const token = res.token;
+            // 判断 code === 200 ，判断是否成功
+            if (code === 200) {
+              // 成功，弹出成功的msg
+              alert(msg);
+              // 存储到本地缓存中
+              localStorage.setItem('token', token);
+              // 跳转到index页面
+              location.href = './index.html';
+            } else {
+              alert(msg);
+            }
+
+          }
+
+        });
+      });
+    });
+  </script>
 
 </body>
 
