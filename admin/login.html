@@ -57,6 +57,7 @@
       </div>
     </div>
   </div>
+  
   <script>
     //入口函数
     $(function () {
@@ -100,7 +101,9 @@
               // 跳转到index页面
               location.href = './index.html';
             }
+            //渲染
             $('.modal-body').html(msg);
+            //通过 JavaScript 调用 modal 模态框
             $('#myModal').modal({ keyboard: true });
           }
 
