@@ -33,8 +33,28 @@
         <i class="iconfont icon-key"></i>
         <input type="text" class="input_txt" placeholder="邮箱/手机号" />
         <input type="password" class="input_pass" placeholder="密码" />
-        <input type="submit" class="input_sub" value="登 录" />
+        <input type="submit" class="input_sub" data-toggle="modal" data-target="#myModal" value="登 录" />
       </form>
+    </div>
+  </div>
+  <!-- BS 插件模态框结构 Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <!-- data-dismiss="modal" 用于模态框的 -->
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">温馨提示</h4>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <!-- data-dismiss="modal" 用于模态框的 -->
+          <button type="button" class="btn btn-info" data-dismiss="modal">关闭</button>
+        </div>
+      </div>
     </div>
   </div>
   <script>
@@ -49,7 +69,8 @@
         const input_pass = $('.input_pass').val().trim();
         // 判断输入内容是否为空
         if (input_txt === '' || input_pass === '') {
-          alert('输入的用户名或密码不能为空');
+          $('.modal-body').html('输入的用户名或密码不能为空');
+          $('#myModal').modal({ keyboard: true });
           return;
         }
         // Ajax请求
@@ -74,16 +95,13 @@
             const token = res.token;
             // 判断 code === 200 ，判断是否成功
             if (code === 200) {
-              // 成功，弹出成功的msg
-              alert(msg);
               // 存储到本地缓存中
               localStorage.setItem('token', token);
               // 跳转到index页面
               location.href = './index.html';
-            } else {
-              alert(msg);
             }
-
+            $('.modal-body').html(msg);
+            $('#myModal').modal({ keyboard: true });
           }
 
         });
