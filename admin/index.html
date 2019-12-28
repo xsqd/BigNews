@@ -53,6 +53,42 @@
         <div class="main" id="main_body">
 
         </div>
+        <script>
+            $(function () {
+                // 获取本地缓存中的 token 数据
+                const token = localStorage.getItem('token');
+                // 判断本地里面是否有 token 数据
+                //有省份证就进,没身份证就跳到登录页面
+                if (!token) {
+                    // 没有，弹出信息，并跳转到登录页面
+                    alert('信息有误，正在返回登录页面');
+                    location.href = './login.html';
+                }
+
+                // Ajax请求
+                $.ajax({
+                    // 请求路径
+                    url: 'http://localhost:8080/api/v1/admin/user/info',
+                    // 请求头
+                    headers: {
+                        // 授权
+                        Authorization: token
+                    },
+                    // 请求成功后回调函数
+                    success: function (res) {
+                        // 获取返回参数
+                        const nickname = res.data.nickname;
+                        const userPic = res.data.userPic;
+                        // console.log(nickname, userPic);
+                        // 渲染
+                        $('.user_info img,user_center_link img').attr('src', userPic)
+                        $('.user_info span').html('欢迎!' + nickname + '大佬');
+                    }
+                });
+
+            });
+        </script>
     </div>
 </body>
+
 </html>
