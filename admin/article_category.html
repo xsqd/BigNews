@@ -14,6 +14,21 @@
     <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
+    <!-- 自定义模板 -->
+    <script id="list" type="text/html">
+        <!-- 循环 -->
+        {{each data}}
+    <tr>
+        <td>{{$value.name}}</td>
+        <td>{{$value.slug}}</td>
+        <td class="text-center">
+            <a data-id="{{$value.id}}" class=" btn btn-info btn-xs" data-toggle="modal" data-target="#exampleModal"
+                data-whatever="@mdo">编辑</a>
+            <a data-id="{{$value.id}}" class="btn btn-danger btn-xs">删除</a>
+        </td>
+    </tr>
+    {{/each}}
+    </script>
 </head>
 
 <body>
@@ -35,21 +50,157 @@
                         <td>奇趣事</td>
                         <td>funny</td>
                         <td class="text-center">
-                            <a href="javascript:void(0)" data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
-                            <a href="javascript:void(0)" class="btn btn-danger btn-xs">删除</a>
+                            <a data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
+                            <a class="btn btn-danger btn-xs">删除</a>
                         </td>
                     </tr>
                 </tbody>
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal"
-                                data-target="#myModal">新增分类</a>
+                            <a class="btn btn-success" id="xinzengfenlei" data-toggle="modal"
+                                data-target="#exampleModal" data-whatever="@mdo">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
+
+    <!-- BS 插件模态框结构 Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">分类管理</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">类名:</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">标签:</label>
+                            <textarea class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="modalSubmit">新增</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./js/http.js"></script>
+    <script src="./js/article_category.js"></script>
+    <script>
+        $(function () {
+            // Ajax请求
+            $.ajax({
+                // 请求方式
+                type: 'get',
+                // 请求路径
+                url: urls.userClist,
+                // 参数类型
+                dataType: 'json',
+                // 请求成功后的回调函数
+                success: function (res) {
+                    // console.log(res);
+                    // 使用 template 方法 让模板与字符串结合
+                    const htmlStr = template('list', res);
+                    // console.log(htmlStr);
+                    // 渲染
+                    $('.category_table tbody').html(htmlStr);
+                }
+            });
+
+            // BS 模态框专属事件，当 BS 模态框显示的时候触发
+            $('#exampleModal').on('show.bs.modal', function (e) {
+                // 通过 e.relatedTarget 告诉点的是哪个
+                const current = $(e.relatedTarget);
+                const str = current.text();
+                // 获取当前点击的按钮的自定义属性，id
+                const id = current.attr('data-id');
+                $('#modalSubmit').text(str);
+                if (str === '编辑') {
+                    // 修改编辑按钮的 class ，修改按钮颜色
+                    // 设置id，用于做接口
+                    $('#modalSubmit').attr('class', 'btn btn-info').attr('data-id', id);
+                    const name = current.parent().prev().prev().text();
+                    const slug = current.parent().prev().text();
+                    // console.log(name, slug);
+                    $('#recipient-name').val(name);
+                    $('#message-text').val(slug);
+
+                } else {
+                    $('#modalSubmit').attr('class', 'btn btn-success');
+                    $('#myModal form').trigger('reset');
+                }
+            });
+
+            // 给模态框按钮注册点击事件
+            $('#modalSubmit').on('click', function () {
+                // 先获取按钮的文本信息
+                const str = $(this).text();
+
+                //新增功能
+                // 判断是新增按钮还是编辑按钮
+                if (str === '新增分类') {
+                    // Ajax请求
+                    $.ajax({
+                        // 请求方法
+                        type: "post",
+                        // 请求路径
+                        url: urls.userCadd,
+                        // 请求参数
+                        data: {
+                            //key: name slug  value:用户输入的内容
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+                        },
+                        // 参数类型
+                        dataType: "json",
+                        // 请求成功后的回调函数
+                        success: function (res) {
+                            // 先获取新增的状态
+                            const code = res.code;
+                            // 判断状态是否成功
+                            if (code === 201) {
+                                // 成功了，实时刷新当前页面
+                                location.reload();
+                            }
+                        }
+                    });
+                } else if (str === '编辑') {
+                    //编辑功能
+                    $.ajax({
+                        // 请求方法
+                        type: "post",
+                        // 请求路径
+                        url: urls.userCedit,
+                        // 请求参数
+                        data: {
+                            //key: name slug  value:用户输入的内容
+                            id: $(this).attr('data-id'),
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+                        },
+                        // 参数类型
+                        dataType: "json",
+                        // 请求成功后的回调函数
+                        success: function (res) {
+                            // 实时刷新页面
+                            location.reload();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
 
 </html>
