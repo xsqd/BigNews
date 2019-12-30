@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/iconfont.css">
     <link rel="stylesheet" href="css/main.css">
     <script src="./libs/jquery-1.12.4.min.js"></script>
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
 
 </head>
 
@@ -68,6 +69,98 @@
             </form>
         </div>
     </div>
+
+    <!-- BS 插件模态框结构 Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- data-dismiss="modal" 用于模态框的 -->
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">温馨提示</h4>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <!-- data-dismiss="modal" 用于模态框的 -->
+                    <button type="button" class="btn btn-info" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./js/http.js"></script>
+    <script>
+        $(function () {
+            //获取数据并渲染到页面
+            $.ajax({
+                // 请求方法
+                type: 'get',
+                // 请求路径
+                url: urls.userDetail,
+                // 参数类型
+                dataType: 'json',
+                // 请求成功后的回调参数
+                success: function (res) {
+                    const data = res.data;
+                    const code = res.code;
+                    // 遍历
+                    $.each(data, function (key, value) {
+                        console.log(key, value);
+                        if (key !== 'userPic') {
+                            $(`[name = "${key}"]`).val(value);
+                        }
+                        $('.user_pic').attr('src', data.userPic);
+                    });
+                    let url;
+                    // 给按钮注册变更事件
+                    $('#exampleInputFile').change(function () {
+                        const file = this.files[0];
+                        console.log(file);
+                        if (file) {
+                            url = window.URL.createObjectURL(file);
+                            $('.user_pic').attr('src', url);
+                        }
+                    })
+                    // 给图片注册点击事件,点击调用按钮变更事件
+                    $('.user_pic').on('click', function () {
+                        $('#exampleInputFile').trigger('click');
+                    });
+                }
+            });
+
+            //用户修改信息
+            //给 from 表单注册提交事件
+            $('#form').submit(function (e) {
+                //阻止普通按钮
+                e.preventDefault();
+                // from 表单域内带 name 属性的内容都会提交到 FormData 里面
+                // 要查看需要通过 get 方法查看
+                const fdObj = new FormData(this);
+                $.ajax({
+                    type: 'post',
+                    url: urls.userEdit,
+                    data: fdObj,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        const msg = res.msg;
+                        //渲染
+                        $('.modal-body').html(msg);
+                        //通过 JavaScript 调用 modal 模态框
+                        $('#myModal').modal({ keyboard: true });
+                        const url = URL.createObjectURL(fdObj.get('userPic'));
+                        const nickname = fdObj.get('nickname');
+                        parent.$('.user_info img,.user_center_link img').attr('src', url);
+                        parent.$('.user_info span').html('欢迎!' + nickname + '大佬');
+                    }
+                });
+
+
+            });
+        });
+    </script>
 </body>
 
 </html>

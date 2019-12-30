@@ -25,7 +25,7 @@
         </div>
         <!-- 左侧导航栏 -->
         <div class="menu">
-            <div class="level01 active"><a href="#" target="main_frame"><i
+            <div class="level01 active"><a href="./main_count.html" target="main_frame"><i
                         class="iconfont icon-yidiandiantubiao04"></i><span>首页</span></a></div>
             <div class="level01"><a href="#"><i class="iconfont icon-icon-article"></i><span>文章管理</span><b
                         class="iconfont icon-arrowdownl"></b></a></div>
@@ -36,9 +36,9 @@
                 </li>
             </ul>
 
-            <div class="level01"><a href="#" target="main_frame"><i
+            <div class="level01"><a href="./comment_list.html" target="main_frame"><i
                         class="iconfont icon-comment"></i><span>评论管理</span></a></div>
-            <div class="level01" id="user"><a href="#" target="main_frame"><i
+            <div class="level01" id="user"><a href="./user.html" target="main_frame"><i
                         class="iconfont icon-user"></i><span>个人中心</span></a></div>
         </div>
         <!-- 顶部栏 -->
@@ -51,8 +51,30 @@
         </div>
         <!-- 右侧主体内容 -->
         <div class="main" id="main_body">
-
+            <iframe name="main_frame" style="width:100%;height:100%" src="./main_count.html" frameborder="0"></iframe>
         </div>
+
+        <!-- BS 插件模态框结构 Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <!-- data-dismiss="modal" 用于模态框的 -->
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">温馨提示</h4>
+                    </div>
+                    <div class="modal-body">
+                        ...
+                    </div>
+                    <div class="modal-footer">
+                        <!-- data-dismiss="modal" 用于模态框的 -->
+                        <button type="button" class="btn btn-info" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 引入自己的封装js文件 -->
         <script src="./js/http.js"></script>
         <script>
@@ -60,7 +82,7 @@
                 // Ajax请求
                 $.ajax({
                     // 请求路径
-                    url: 'http://localhost:8080/api/v1/admin/user/info',
+                    url: urls.userInfo,
                     // 请求成功后回调函数
                     success: function (res) {
                         // 获取返回参数
@@ -74,11 +96,10 @@
                 });
                 // 退出登录功能
                 $('.logout').on('click', function () {
-                    alert('退出成功');
                     localStorage.removeItem('token');
                     location.href = './login.html';
                 });
-
+                
             });
         </script>
     </div>
