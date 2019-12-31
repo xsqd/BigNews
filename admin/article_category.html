@@ -24,7 +24,8 @@
         <td class="text-center">
             <a data-id="{{$value.id}}" class=" btn btn-info btn-xs" data-toggle="modal" data-target="#exampleModal"
                 data-whatever="@mdo">编辑</a>
-            <a data-id="{{$value.id}}" class="btn btn-danger btn-xs">删除</a>
+            <a data-id="{{$value.id}}" class="btn btn-danger btn-xs delete" data-toggle="modal"
+                data-target="#myModal">删除</a>
         </td>
     </tr>
     {{/each}}
@@ -95,6 +96,28 @@
             </div>
         </div>
     </div>
+
+    <!-- BS 插件模态框结构 Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- data-dismiss="modal" 用于模态框的 -->
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">温馨提示</h4>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <!-- data-dismiss="modal" 用于模态框的 -->
+                    <button type="button" class="btn btn-info" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="./js/http.js"></script>
     <script src="./js/article_category.js"></script>
     <script>
@@ -199,6 +222,35 @@
                     });
                 }
             });
+
+            //删除功能
+            //给删除按钮注册事件委托
+            $('.category_table>tbody').on('click', '.delete', function () {
+                // Ajax请求
+                $.ajax({
+                    type: "post",
+                    url: urls.userCdelete,
+                    dataType: 'json',
+                    data: {
+                        id: $(this).attr('data-id')
+                    },
+                    success: function (res) {
+                        if (res.code == 204) {
+                            //渲染
+                            $('.modal-body').html('删除成功');
+                            //通过 JavaScript 调用 modal 模态框
+                            $('#myModal').modal({ keyboard: true });
+                            window.location.reload();
+                        } else {
+                            $('.modal-body').html(res.msg);
+                            //通过 JavaScript 调用 modal 模态框
+                            $('#myModal').modal({ keyboard: true });
+                        }
+
+                    }
+                });
+            });
+
         });
     </script>
 </body>

@@ -41,10 +41,10 @@
         userDarticle: baseURL + '/admin/data/article',
         userDcategory: baseURL + '/admin/data/category',
         userDvisit: baseURL + '/admin/data/visit',
-        userCsearch: baseURL + '/admin/comment/search',
+        usersearch: baseURL + '/admin/comment/search',
         userCpass: baseURL + '/admin/comment/pass',
         userCreject: baseURL + '/admin/comment/reject',
-        userCdelete: baseURL + '/admin/comment/delete'
+        userdelete: baseURL + '/admin/comment/delete'
     };
     window.urls = urls;
 })(window);
