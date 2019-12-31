@@ -11,8 +11,34 @@
     <link rel="stylesheet" href="./css/iconfont.css">
     <link rel="stylesheet" href="./css/main.css">
     <script src="./libs/jquery-1.12.4.min.js"></script>
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="./libs/jquery.twbsPagination.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
+    <!-- 自定义模板 -->
+    <script id="selCategoryList" type="text/html">
+        <option value="">所有分类</option>
+        {{ each }}  
+            <option value="{{ $value.id }}">{{ $value.name }}</option>  
+        {{ /each }}
+    </script>
+
+    <script id="list" type="text/html">
+        {{each}}
+        <tr>
+            <td>{{$value.title}}</td>
+            <td>{{$value.author}}</td>
+            <td>{{$value.category}}</td>
+            <td class="text-center">{{$value.date}}</td>
+            <td class="text-center">{{$value.state}}</td>
+            <td class="text-center">
+                <a href="article_edit.html?{{$value.id}}" class="btn btn-default btn-xs">编辑</a>
+                <a href="javascript:void(0);" data-id="{{$value.id}}" class="btn btn-danger btn-xs delete" data-toggle="modal"
+                data-target="#myModal">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
 </head>
 
 <body>
@@ -71,7 +97,107 @@
             <div class="row text-center">
             </div>
         </div>
+        <div class="row text-center">
+            <ul id="pagination" class="pagination-sm"></ul>
+        </div>
+
     </div>
+
+    <!-- BS 插件模态框结构 Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- data-dismiss="modal" 用于模态框的 -->
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">温馨提示</h4>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <!-- data-dismiss="modal" 用于模态框的 -->
+                    <button type="button" class="btn btn-info" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入自己的js文件 -->
+    <script src="./js/http.js"></script>
+    <script>
+        // 入口函数
+        $(function () {
+            // Ajax请求
+            $.ajax({
+                url: urls.userClist,
+                success: function (res) {
+                    const data = res.data;
+                    // 通过 template 方法使模板和字符串结合
+                    const htmlStr = template('selCategoryList', data);
+                    //渲染
+                    $('#selCategory').html(htmlStr);
+                }
+            });
+
+            // 封装函数
+            function getArticleList(page = 1) {
+                $.ajax({
+                    type: "get",
+                    url: urls.userAquery,
+                    data: {
+                        type: $('#selCategory').val(),
+                        state: $('#selStatus').val(),
+                        page: page,
+                        perpage: 10
+                    },
+                    dataType: "json",
+                    success: function (res) {
+                        console.log(res.data.data);
+                        if (res.code === 200) {
+                            const str = template('list', res.data.data);
+                            $('.table tbody').html(str);
+                        }
+
+                    }
+                });
+            }
+            // 页面一开始就调用函数
+            getArticleList();
+
+            $('#btnSearch').on('click', function (e) {
+                e.preventDefault();
+                //点击筛选的筛选,重新加载
+                getArticleList();
+            });
+
+            //删除功能
+            $('.table tbody').on('click', '.delete', function () {
+                const id = $(this).attr('data-id');
+                $.ajax({
+                    type: "post",
+                    url: urls.userAdelete,
+                    data: {
+                        id: id
+                    },
+                    dataType: "json",
+                    success: function (res) {
+                        console.log(res.msg);
+                        $('.modal-body').html(res.msg);
+                        //通过 JavaScript 调用 modal 模态框
+                        $('#myModal').modal({ keyboard: true });
+                        // 点击删除后重新加载
+                        getArticleList();
+                    }
+                });
+
+            });
+
+            // 插入分页
+
+        });
+    </script>
 </body>
 
 </html>
