@@ -96,11 +96,8 @@
             </table>
             <div class="row text-center">
             </div>
-        </div>
-        <div class="row text-center">
             <ul id="pagination" class="pagination-sm"></ul>
         </div>
-
     </div>
 
     <!-- BS 插件模态框结构 Modal -->
@@ -154,10 +151,12 @@
                     },
                     dataType: "json",
                     success: function (res) {
+                        const totalPage = res.data.totalPage;
                         console.log(res.data.data);
                         if (res.code === 200) {
                             const str = template('list', res.data.data);
                             $('.table tbody').html(str);
+                            resetPage(totalPage, page);
                         }
 
                     }
@@ -195,6 +194,32 @@
             });
 
             // 插入分页
+            const $pagination = $('#pagination');
+            // totalPages 总页数，startPage 默认页
+            function resetPage(totalPages = 5, startPage = 1) {
+                // 先销毁旧的分页器，因为每次请求返回的总页数不确定
+                $pagination.twbsPagination('destroy');
+                // 启用分页器插件
+                $pagination.twbsPagination({
+                    first: '首页',
+                    prev: '上一页',
+                    next: '下一页',
+                    last: '尾页',
+                    startPage: startPage,
+                    // 总页数
+                    totalPages: totalPages,
+                    // 可见页数上限
+                    visiblePages: 7,
+                    // 点击页码事件回调 - 事件
+                    onPageClick: function (event, page) {
+                        // console.log('page 当前是第几页', page);
+                        // 获取点击分页器的页面，用于向服务器发起请求
+                        if (startPage !== page) { // 起始页不等于当前页才发请求
+                            getArticleList(page);
+                        }
+                    }
+                });
+            }
 
         });
     </script>
